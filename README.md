@@ -33,15 +33,15 @@ This module analyzes submitted Python code and estimates its time and space comp
 ## 📥 Sample Input
 
 POST /api/code/analyze
-# body
 ```json
+
+// Body
 {
   "language": "python",
   "code": "def fact(n):\n    if n == 1:\n        return 1\n    return n * fact(n-1)"
 }
 
-# output
-```json
+// Response
 {
   "language": "python",
   "code": "def fact(n):\n    if n == 1:\n        return 1\n    return n * fact(n-1)",
