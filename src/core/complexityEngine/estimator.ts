@@ -1,4 +1,4 @@
-// Complexity Estimator - src/core/complexityEngine/estimator.ts
+
 import { Tree } from 'tree-sitter';
 
 export const estimateComplexity = (tree: Tree) => {
@@ -8,6 +8,7 @@ export const estimateComplexity = (tree: Tree) => {
   let recursiveCalls = 0;
   let divideOps = 0;
   let totalLoops = 0;
+  let listComprehensions = 0;
 
   const walk = (node: any, parentFn: string | null = null) => {
     // Track function definitions
@@ -32,6 +33,12 @@ export const estimateComplexity = (tree: Tree) => {
       divideOps++;
     }
 
+    // Detect list comprehensions as potential loops
+    if (node.type === 'list_comprehension' || node.type === 'set_comprehension') {
+      listComprehensions++;
+      loopDepth++;
+    }
+
     for (const child of node.children || []) {
       walk(child, functionName);
     }
@@ -43,7 +50,9 @@ export const estimateComplexity = (tree: Tree) => {
   // Enhanced rule-based estimation logic
   let time = 'O(1)';
 
-  if (recursion && divideOps > 0 && totalLoops > 0) {
+  if (recursion && divideOps > 0 && loopDepth >= 2) {
+    time = 'O(n^2 log n)'; // heavy merge cost in divide-and-conquer
+  } else if (recursion && divideOps > 0 && loopDepth >= 1) {
     time = 'O(n log n)';
   } else if (recursion && divideOps > 0) {
     time = 'O(log n)';
@@ -51,7 +60,9 @@ export const estimateComplexity = (tree: Tree) => {
     time = 'O(n * 2^n)';
   } else if (recursion) {
     time = 'O(2^n)';
-  } else if (loopDepth >= 2) {
+  } else if (loopDepth >= 3) {
+    time = 'O(n^3)';
+  } else if (loopDepth === 2) {
     time = 'O(n^2)';
   } else if (loopDepth === 1) {
     time = 'O(n)';
@@ -62,6 +73,6 @@ export const estimateComplexity = (tree: Tree) => {
   return {
     timeComplexity: time,
     spaceComplexity: space,
-    explanation: `Detected ${loopDepth} loop(s), ${recursiveCalls} recursive call(s), and ${divideOps} divide operation(s). Time estimated as ${time}.`,
+    explanation: `Detected ${loopDepth} loop(s) (including ${listComprehensions} comprehension(s)), ${recursiveCalls} recursive call(s), and ${divideOps} divide operation(s). Time estimated as ${time}.`,
   };
 };
