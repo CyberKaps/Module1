@@ -1,3 +1,4 @@
+// Complexity Estimator - src/core/complexityEngine/estimator.ts
 import { Tree } from 'tree-sitter';
 
 export const estimateComplexity = (tree: Tree) => {
@@ -6,6 +7,7 @@ export const estimateComplexity = (tree: Tree) => {
   let functionName = '';
   let recursiveCalls = 0;
   let divideOps = 0;
+  let totalLoops = 0;
 
   const walk = (node: any, parentFn: string | null = null) => {
     // Track function definitions
@@ -15,6 +17,7 @@ export const estimateComplexity = (tree: Tree) => {
 
     // Detect loops
     if (node.type === 'for_statement' || node.type === 'while_statement') {
+      totalLoops++;
       loopDepth++;
     }
 
@@ -37,10 +40,12 @@ export const estimateComplexity = (tree: Tree) => {
   // Starts recursive traversal from the root of the AST.
   walk(tree.rootNode);
 
-  // Basic rule-based complexity estimation with upgraded checks
+  // Enhanced rule-based estimation logic
   let time = 'O(1)';
 
-  if (recursion && divideOps > 0) {
+  if (recursion && divideOps > 0 && totalLoops > 0) {
+    time = 'O(n log n)';
+  } else if (recursion && divideOps > 0) {
     time = 'O(log n)';
   } else if (recursion && loopDepth >= 1) {
     time = 'O(n * 2^n)';

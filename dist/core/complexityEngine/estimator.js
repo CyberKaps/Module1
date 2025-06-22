@@ -7,6 +7,7 @@ const estimateComplexity = (tree) => {
     let functionName = '';
     let recursiveCalls = 0;
     let divideOps = 0;
+    let totalLoops = 0;
     const walk = (node, parentFn = null) => {
         var _a, _b;
         // Track function definitions
@@ -15,6 +16,7 @@ const estimateComplexity = (tree) => {
         }
         // Detect loops
         if (node.type === 'for_statement' || node.type === 'while_statement') {
+            totalLoops++;
             loopDepth++;
         }
         // Detect recursive calls
@@ -32,9 +34,12 @@ const estimateComplexity = (tree) => {
     };
     // Starts recursive traversal from the root of the AST.
     walk(tree.rootNode);
-    // Basic rule-based complexity estimation with upgraded checks
+    // Enhanced rule-based estimation logic
     let time = 'O(1)';
-    if (recursion && divideOps > 0) {
+    if (recursion && divideOps > 0 && totalLoops > 0) {
+        time = 'O(n log n)';
+    }
+    else if (recursion && divideOps > 0) {
         time = 'O(log n)';
     }
     else if (recursion && loopDepth >= 1) {
