@@ -6,10 +6,20 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  url      = "postgresql://neondb_owner:npg_hv9lnYT2fHZd@ep-dark-poetry-a5bwx1mz-pooler.us-east-2.aws.neon.tech/neondb?sslmode=require"
+}
+
+
+model AnalysisResult {
+  id              Int      @id @default(autoincrement())
+  language        String
+  code            String
+  timeComplexity  String
+  spaceComplexity String
+  explanation     String
+  createdAt       DateTime @default(now())
 }
