@@ -16,8 +16,13 @@ export const estimateComplexity = (tree: Tree) => {
       functionName = node.childForFieldName('name')?.text || '';
     }
 
-    // Detect loops
-    if (node.type === 'for_statement' || node.type === 'while_statement') {
+    // Detect loops (robustly handles different syntaxes)
+    if (
+      node.type === 'for_statement' ||
+      node.type === 'while_statement' ||
+      node.type.includes('for') ||
+      node.type.includes('while')
+    ) {
       totalLoops++;
       loopDepth++;
     }
@@ -39,8 +44,12 @@ export const estimateComplexity = (tree: Tree) => {
       divideOps++;
     }
 
-    // Detect list comprehensions (Python)
-    if (node.type === 'list_comprehension' || node.type === 'set_comprehension') {
+    // Detect comprehensions (Python)
+    if (
+      node.type === 'list_comprehension' ||
+      node.type === 'set_comprehension' ||
+      node.type.includes('comprehension')
+    ) {
       listComprehensions++;
       loopDepth++;
     }
@@ -57,19 +66,24 @@ export const estimateComplexity = (tree: Tree) => {
   let time = 'O(1)';
 
   if (recursion && recursiveCalls === 1 && !divideOps && loopDepth === 0) {
-  time = 'O(n)'; // linear recursion (e.g. countdown)
-} else if (recursion && divideOps > 0 && loopDepth >= 2) {
-  time = 'O(n^2 log n)';
-} else if (recursion && divideOps > 0 && loopDepth >= 1) {
-  time = 'O(n log n)';
-} else if (recursion && divideOps > 0) {
-  time = 'O(log n)';
-} else if (recursion && loopDepth >= 1) {
-  time = 'O(n * 2^n)';
-} else if (recursion && recursiveCalls > 1) {
-  time = 'O(2^n)';
-}
-
+    time = 'O(n)'; // linear recursion (e.g. countdown)
+  } else if (recursion && divideOps > 0 && loopDepth >= 2) {
+    time = 'O(n^2 log n)';
+  } else if (recursion && divideOps > 0 && loopDepth >= 1) {
+    time = 'O(n log n)';
+  } else if (recursion && divideOps > 0) {
+    time = 'O(log n)';
+  } else if (recursion && loopDepth >= 1) {
+    time = 'O(n * 2^n)';
+  } else if (recursion && recursiveCalls > 1) {
+    time = 'O(2^n)';
+  } else if (loopDepth >= 3) {
+    time = 'O(n^3)';
+  } else if (loopDepth === 2) {
+    time = 'O(n^2)';
+  } else if (loopDepth === 1) {
+    time = 'O(n)';
+  }
 
   const space = recursion ? 'O(n)' : 'O(1)';
 
