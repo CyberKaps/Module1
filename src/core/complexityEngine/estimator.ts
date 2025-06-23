@@ -61,22 +61,23 @@ export const estimateComplexity = (tree: Tree) => {
   walk(tree.rootNode);
 
   // Rule-based estimation
+
   let time = 'O(1)';
 
-  if (recursion && recursiveCalls > 1 && divideOps > 0 && loopDepth === 0) {
-    time = 'O(log n)'; // binary search pattern
-  } else if (recursion && recursiveCalls > 1 && divideOps === 0) {
-    time = 'O(2^n)'; // pure exponential recursion (e.g. Fibonacci)
-  } else if (recursion && recursiveCalls > 1 && divideOps > 0) {
-    time = 'O(n * 2^n)';
+  if (recursion && recursiveCalls === 1 && !divideOps && loopDepth === 0) {
+    time = 'O(n)';
   } else if (recursion && divideOps > 0 && loopDepth <= 1) {
-    time = 'O(n log n)'; // merge sort pattern
+    time = 'O(n log n)'; // ✅ Match merge sort FIRST
   } else if (recursion && divideOps > 0 && loopDepth >= 2) {
     time = 'O(n^2 log n)';
+  } else if (recursion && recursiveCalls > 1 && divideOps === 0) {
+    time = 'O(2^n)'; // exponential (e.g. Fibonacci)
+  } else if (recursion && recursiveCalls > 1 && divideOps > 0 && loopDepth === 0) {
+    time = 'O(log n)'; // binary search
+  } else if (recursion && recursiveCalls > 1 && divideOps > 0) {
+    time = 'O(n * 2^n)';
   } else if (recursion && loopDepth >= 1) {
     time = 'O(n * 2^n)';
-  } else if (recursion && recursiveCalls === 1) {
-    time = 'O(n)';
   } else if (loopDepth >= 3) {
     time = 'O(n^3)';
   } else if (loopDepth === 2) {
@@ -84,6 +85,7 @@ export const estimateComplexity = (tree: Tree) => {
   } else if (loopDepth === 1) {
     time = 'O(n)';
   }
+
 
   const space = recursion ? 'O(n)' : 'O(1)';
 
