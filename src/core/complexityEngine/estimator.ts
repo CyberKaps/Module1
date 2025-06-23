@@ -1,4 +1,4 @@
-
+// Complexity Estimator - src/core/complexityEngine/estimator.ts
 import { Tree } from 'tree-sitter';
 
 export const estimateComplexity = (tree: Tree) => {
@@ -11,8 +11,8 @@ export const estimateComplexity = (tree: Tree) => {
   let listComprehensions = 0;
 
   const walk = (node: any, parentFn: string | null = null) => {
-    // Track function definitions
-    if (node.type === 'function_definition') {
+    // Track function definitions (Python, JavaScript, C++)
+    if (node.type === 'function_definition' || node.type === 'function_declaration') {
       functionName = node.childForFieldName('name')?.text || '';
     }
 
@@ -22,18 +22,24 @@ export const estimateComplexity = (tree: Tree) => {
       loopDepth++;
     }
 
-    // Detect recursive calls
-    if (node.type === 'call' && node.firstChild?.text === functionName) {
+    // Detect recursive calls across languages
+    if (
+      (node.type === 'call' || node.type === 'call_expression') &&
+      node.firstChild?.text === functionName
+    ) {
       recursion = true;
       recursiveCalls++;
     }
 
-    // Detect division (for log n inference)
-    if (node.type === 'binary_operator' && (node.text.includes('//') || node.text.includes('/2'))) {
+    // Detect division (Python, C++, JS)
+    if (
+      node.type === 'binary_operator' &&
+      (node.text.includes('//') || node.text.includes('/2') || node.text.includes('/ 2') || node.text.includes('/'))
+    ) {
       divideOps++;
     }
 
-    // Detect list comprehensions as potential loops
+    // Detect list comprehensions (Python)
     if (node.type === 'list_comprehension' || node.type === 'set_comprehension') {
       listComprehensions++;
       loopDepth++;
@@ -44,29 +50,26 @@ export const estimateComplexity = (tree: Tree) => {
     }
   };
 
-  // Starts recursive traversal from the root of the AST.
+  // Start recursive AST traversal
   walk(tree.rootNode);
 
-  // Enhanced rule-based estimation logic
+  // Rule-based estimation
   let time = 'O(1)';
 
-  if (recursion && divideOps > 0 && loopDepth >= 2) {
-    time = 'O(n^2 log n)'; // heavy merge cost in divide-and-conquer
-  } else if (recursion && divideOps > 0 && loopDepth >= 1) {
-    time = 'O(n log n)';
-  } else if (recursion && divideOps > 0) {
-    time = 'O(log n)';
-  } else if (recursion && loopDepth >= 1) {
-    time = 'O(n * 2^n)';
-  } else if (recursion) {
-    time = 'O(2^n)';
-  } else if (loopDepth >= 3) {
-    time = 'O(n^3)';
-  } else if (loopDepth === 2) {
-    time = 'O(n^2)';
-  } else if (loopDepth === 1) {
-    time = 'O(n)';
-  }
+  if (recursion && recursiveCalls === 1 && !divideOps && loopDepth === 0) {
+  time = 'O(n)'; // linear recursion (e.g. countdown)
+} else if (recursion && divideOps > 0 && loopDepth >= 2) {
+  time = 'O(n^2 log n)';
+} else if (recursion && divideOps > 0 && loopDepth >= 1) {
+  time = 'O(n log n)';
+} else if (recursion && divideOps > 0) {
+  time = 'O(log n)';
+} else if (recursion && loopDepth >= 1) {
+  time = 'O(n * 2^n)';
+} else if (recursion && recursiveCalls > 1) {
+  time = 'O(2^n)';
+}
+
 
   const space = recursion ? 'O(n)' : 'O(1)';
 
