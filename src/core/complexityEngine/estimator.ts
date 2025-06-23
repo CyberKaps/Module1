@@ -67,8 +67,8 @@ export const estimateComplexity = (tree: Tree) => {
 
   if (recursion && recursiveCalls === 1 && !divideOps && loopDepth === 0) {
     time = 'O(n)'; // linear recursion
-  } else if (recursion && divideOps > 0 && loopDepth === 1) {
-    time = 'O(n log n)'; // e.g. merge sort
+  } else if (recursion && divideOps > 0 && loopDepth <= 1) {
+  time = 'O(n log n)';
   } else if (recursion && divideOps > 0 && loopDepth >= 2) {
     time = 'O(n^2 log n)';
   } else if (recursion && divideOps > 0) {
