@@ -62,20 +62,22 @@ export const estimateComplexity = (tree: Tree) => {
 
   // Rule-based estimation
 
-   let time = 'O(1)';
+  let time = 'O(1)';
 
   if (recursion && recursiveCalls === 1 && !divideOps && loopDepth === 0) {
     time = 'O(n)';
   } else if (recursion && recursiveCalls === 2 && divideOps === 1 && loopDepth === 0) {
-    time = 'O(log n)';
-  } else if (recursion && divideOps > 0 && loopDepth <= 1) {
-    time = 'O(n log n)';
-  } else if (recursion && divideOps > 0 && loopDepth >= 2) {
-    time = 'O(n^2 log n)';
+    time = 'O(log n)'; // Binary Search
+  } else if (recursion && recursiveCalls === 2 && divideOps === 1 && loopDepth <= 2) {
+    time = 'O(n log n)'; // Merge Sort & QuickSort
   } else if (recursion && recursiveCalls > 1 && divideOps === 0) {
     time = 'O(2^n)';
+  } else if (recursion && recursiveCalls > 1 && divideOps > 0 && loopDepth === 0) {
+    time = 'O(log n)';
   } else if (recursion && recursiveCalls > 1 && divideOps > 0) {
     time = 'O(n * 2^n)';
+  } else if (recursion && divideOps > 0 && loopDepth > 2) {
+    time = 'O(n^2 log n)';
   } else if (recursion && loopDepth >= 1) {
     time = 'O(n * 2^n)';
   } else if (loopDepth >= 3) {
@@ -85,6 +87,7 @@ export const estimateComplexity = (tree: Tree) => {
   } else if (loopDepth === 1) {
     time = 'O(n)';
   }
+
 
   const space = recursion ? 'O(n)' : 'O(1)';
 
