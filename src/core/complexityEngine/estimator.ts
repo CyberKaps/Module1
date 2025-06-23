@@ -16,11 +16,10 @@ export const estimateComplexity = (tree: Tree) => {
       functionName = node.childForFieldName('name')?.text || '';
     }
 
-    // Detect loops (robustly handles different syntaxes)
+    // Detect loops (strictly count only actual for/while loops)
     if (
       node.type === 'for_statement' ||
-      node.type === 'while_statement' 
-      
+      node.type === 'while_statement'
     ) {
       totalLoops++;
       loopDepth++;
@@ -64,18 +63,22 @@ export const estimateComplexity = (tree: Tree) => {
   // Rule-based estimation
   let time = 'O(1)';
 
-  if (recursion && recursiveCalls === 1 && !divideOps && loopDepth === 0) {
-    time = 'O(n)';
+  if (recursion && recursiveCalls > 1 && divideOps > 0 && loopDepth === 0) {
+    time = 'O(log n)'; // binary search pattern
+  } else if (recursion && recursiveCalls > 1 && divideOps === 0) {
+    time = 'O(2^n)'; // pure exponential recursion (e.g. Fibonacci)
+  } else if (recursion && recursiveCalls > 1 && divideOps > 0) {
+    time = 'O(n * 2^n)';
   } else if (recursion && divideOps > 0 && loopDepth <= 1) {
-    time = 'O(n log n)'; // covers merge sort case
+    time = 'O(n log n)'; // merge sort
   } else if (recursion && divideOps > 0 && loopDepth >= 2) {
     time = 'O(n^2 log n)';
   } else if (recursion && divideOps > 0) {
     time = 'O(log n)';
   } else if (recursion && loopDepth >= 1) {
     time = 'O(n * 2^n)';
-  } else if (recursion && recursiveCalls > 1) {
-    time = 'O(2^n)';
+  } else if (recursion && recursiveCalls === 1) {
+    time = 'O(n)';
   } else if (loopDepth >= 3) {
     time = 'O(n^3)';
   } else if (loopDepth === 2) {
