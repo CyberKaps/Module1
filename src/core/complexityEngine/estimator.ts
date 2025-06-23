@@ -66,17 +66,17 @@ export const estimateComplexity = (tree: Tree) => {
 
   if (recursion && recursiveCalls === 1 && !divideOps && loopDepth === 0) {
     time = 'O(n)';
+  } else if (recursion && recursiveCalls === 2 && divideOps === 1 && loopDepth <= 3) {
+    time = 'O(n log n)'; // ✅ Match QuickSort/MergeSort here
   } else if (recursion && recursiveCalls === 2 && divideOps === 1 && loopDepth === 0) {
-    time = 'O(log n)'; // Binary Search
-  } else if (recursion && recursiveCalls === 2 && divideOps === 1 && loopDepth <= 2) {
-    time = 'O(n log n)'; // Merge Sort & QuickSort
+    time = 'O(log n)'; // binary search
   } else if (recursion && recursiveCalls > 1 && divideOps === 0) {
     time = 'O(2^n)';
   } else if (recursion && recursiveCalls > 1 && divideOps > 0 && loopDepth === 0) {
     time = 'O(log n)';
   } else if (recursion && recursiveCalls > 1 && divideOps > 0) {
     time = 'O(n * 2^n)';
-  } else if (recursion && divideOps > 0 && loopDepth > 2) {
+  } else if (recursion && divideOps > 0 && loopDepth > 3) {
     time = 'O(n^2 log n)';
   } else if (recursion && loopDepth >= 1) {
     time = 'O(n * 2^n)';
