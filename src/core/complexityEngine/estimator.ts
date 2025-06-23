@@ -1,4 +1,4 @@
-// Complexity Estimator - src/core/complexityEngine/estimator.ts
+
 import { Tree } from 'tree-sitter';
 
 export const estimateComplexity = (tree: Tree) => {
@@ -19,9 +19,8 @@ export const estimateComplexity = (tree: Tree) => {
     // Detect loops (robustly handles different syntaxes)
     if (
       node.type === 'for_statement' ||
-      node.type === 'while_statement' ||
-      node.type.includes('for') ||
-      node.type.includes('while')
+      node.type === 'while_statement' 
+      
     ) {
       totalLoops++;
       loopDepth++;
@@ -66,9 +65,9 @@ export const estimateComplexity = (tree: Tree) => {
   let time = 'O(1)';
 
   if (recursion && recursiveCalls === 1 && !divideOps && loopDepth === 0) {
-    time = 'O(n)'; // linear recursion
+    time = 'O(n)';
   } else if (recursion && divideOps > 0 && loopDepth <= 1) {
-  time = 'O(n log n)';
+    time = 'O(n log n)'; // covers merge sort case
   } else if (recursion && divideOps > 0 && loopDepth >= 2) {
     time = 'O(n^2 log n)';
   } else if (recursion && divideOps > 0) {
